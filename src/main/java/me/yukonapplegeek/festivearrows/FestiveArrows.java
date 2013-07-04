@@ -57,7 +57,8 @@ public class FestiveArrows extends JavaPlugin implements Listener {
             if (hasLanded != null && !hasLanded) {
                 Location location = projectile.getLocation();
                 location.getWorld().createExplosion(location, 4F, false);
-                projectile.getMetadata("festivearrows.hasLanded").set(0, new FixedMetadataValue(this, new Boolean(true)));
+                projectile.removeMetadata("festivearrows.hasLanded", this);
+                projectile.setMetadata("festivearrows.hasLanded", new FixedMetadataValue(this, new Boolean(true)));
             }
         }
     }
