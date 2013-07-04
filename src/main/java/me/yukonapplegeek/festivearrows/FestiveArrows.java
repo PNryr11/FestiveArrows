@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FestiveArrows extends JavaPlugin implements Listener {
@@ -33,8 +34,9 @@ public class FestiveArrows extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
+        Projectile projectile = (Projectile) event.getProjectile();
         FireworkMeta fireworkMeta = (FireworkMeta) (new ItemStack(Material.FIREWORK)).getItemMeta();
-        Firework firework = (Firework) event.getProjectile().getLocation().getWorld().spawnEntity(event.getProjectile().getLocation(), EntityType.FIREWORK);
+        Firework firework = (Firework) projectile.getLocation().getWorld().spawnEntity(projectile.getLocation(), EntityType.FIREWORK);
 
         fireworkMeta.addEffect(FireworkEffect.builder()
                 .with(Type.BURST)
@@ -42,15 +44,21 @@ public class FestiveArrows extends JavaPlugin implements Listener {
                 .withTrail()
                 .build());
         firework.setFireworkMeta(fireworkMeta);
-        event.getProjectile().setPassenger(firework);
+        projectile.setPassenger(firework);
+
+        projectile.setMetadata("festivearrows.hasLanded", new FixedMetadataValue(this, new Boolean(false)));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onProjectileHit(final ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
         if (projectile instanceof Arrow) {
-            Location location = projectile.getLocation();
-            location.getWorld().createExplosion(location, 4F, false);
+            Boolean hasLanded = (Boolean) projectile.getMetadata("festivearrows.hasLanded").get(0).value();
+            if (hasLanded != null && !hasLanded) {
+                Location location = projectile.getLocation();
+                location.getWorld().createExplosion(location, 4F, false);
+                projectile.getMetadata("festivearrows.hasLanded").set(0, new FixedMetadataValue(this, new Boolean(true)));
+            }
         }
     }
 
