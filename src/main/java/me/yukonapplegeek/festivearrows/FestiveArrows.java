@@ -11,8 +11,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEntityEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -45,8 +45,8 @@ public class FestiveArrows extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onBowShoot(EntityShootBowEvent event) {
-        Projectile projectile = (Projectile) event.getProjectile();
+    public void onBowShoot(ProjectileLaunchEvent event) {
+        Projectile projectile = (Projectile) event.getEntity();
         if (projectile instanceof Arrow) {
             FestiveArrows.attachFirework((Arrow) projectile);
             projectile.setMetadata("festivearrows.hasLanded", new FixedMetadataValue(this, new Boolean(false)));
@@ -60,7 +60,7 @@ public class FestiveArrows extends JavaPlugin implements Listener {
             Boolean hasLanded = (Boolean) projectile.getMetadata("festivearrows.hasLanded").get(0).value();
             if (hasLanded != null && !hasLanded) {
                 Location location = projectile.getLocation();
-                location.getWorld().createExplosion(location, 4F, false);
+                location.getWorld().createExplosion(location, 8F, false);
                 projectile.removeMetadata("festivearrows.hasLanded", this);
                 projectile.setMetadata("festivearrows.hasLanded", new FixedMetadataValue(this, new Boolean(true)));
             }
